@@ -4,12 +4,25 @@ import AddTodoForm from "./components/AddTodoForm";
 function App() {
   const [todos, setTodos] = useState([]);
   const [editingTodo, setEditingTodo] = useState(null); // Düzenleme state'i başlangıçta boş değer tutar.
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  // get.php api ile todolara erişim.
   const fetchTodos = () => {
     fetch("http://localhost/todo-api/api/todos/get.php")
       .then((res) => res.json())
-      .then((data) => setTodos(data));
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setTodos(data);
+        } else if (data && typeof data === 'object') {
+          setTodos(Array.isArray(data.data) ? data.data : []);
+        } else {
+          setTodos([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching todos:", error);
+        setTodos([]);
+      });
   };
 
   // Todo silme işlemi.
@@ -102,21 +115,37 @@ function App() {
     }
   };
 
+  // AddTodoForm için onAdd fonksiyonunu güncelle
+  const handleAddTodo = () => {
+    fetchTodos();
+    setCurrentPage(1);
+  };
+
   useEffect(() => {
     fetchTodos();
   }, []);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  // Sayfalama için görevleri böl
+  const indexOfLastTodo = currentPage * itemsPerPage;
+  const indexOfFirstTodo = indexOfLastTodo - itemsPerPage;
+  const currentTodos = todos.slice(indexOfFirstTodo, indexOfLastTodo);
+  const totalPages = Math.ceil(todos.length / itemsPerPage);
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] p-6">
       <div className="max-w-5xl mx-auto">
         <div className="bg-white rounded-3xl shadow-lg p-8 mb-8 border border-gray-100">
           <div className="flex items-center justify-between mb-8">
-            <div>
+            <div className="w-full text-center">
               <h1 className="text-3xl font-bold text-[#1a1a1a]">
-                Görev Listesi
+                Yeni Görev Ekle
               </h1>
               <p className="text-[#666] mt-2">
-                {todos.length} adet görev listelendi
+                Toplam {todos.length} görev, Sayfa {currentPage}/{totalPages || 1}
               </p>
             </div>
             <div className="w-16 h-16 bg-[#4f46e5] rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
@@ -124,7 +153,7 @@ function App() {
             </div>
           </div>
 
-          <AddTodoForm onAdd={fetchTodos} />
+          <AddTodoForm onAdd={handleAddTodo} />
         </div>
 
         {editingTodo && (
@@ -190,55 +219,86 @@ function App() {
             <p className="text-[#666] mt-2">Yeni bir görev ekleyerek başlayın</p>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2">
-            {todos.map((todo) => (
-              <div
-                key={todo.id}
-                className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <h2 className={`text-xl font-semibold ${todo.status === "completed" ? "line-through text-[#10b981]" : "text-[#1a1a1a]"
-                    }`}>
-                    {todo.title}
-                  </h2>
-                  <div className="flex space-x-2">
+          <>
+            <h2 className="text-2xl font-bold text-[#1a1a1a] mb-6 text-center">Kayıtlı Görevler</h2>
+            <div className="grid gap-6 md:grid-cols-2">
+              {currentTodos.map((todo) => (
+                <div
+                  key={todo.id}
+                  className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <h2 className={`text-xl font-semibold ${todo.status === "completed" ? "line-through text-[#10b981]" : "text-[#1a1a1a]"
+                      }`}>
+                      {todo.title}
+                    </h2>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => editTodo(todo)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f8f9fa] transition-colors"
+                        title="Görevi Düzenle"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => deleteTodo(todo.id)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f8f9fa] transition-colors"
+                        title="Görevi Sil"
+                      >
+                        ❌
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="text-[#666] mb-4">{todo.description}</p>
+
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-[#666]">
+                      {new Date(todo.due_date).toLocaleString('tr-TR')}
+                    </p>
                     <button
-                      onClick={() => editTodo(todo)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f8f9fa] transition-colors"
-                      title="Görevi Düzenle"
+                      onClick={() => completeTodo(todo.id)}
+                      disabled={todo.status === "completed"}
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${todo.status === "completed"
+                        ? "bg-[#f8f9fa] text-[#666] cursor-not-allowed"
+                        : "bg-[#10b981] hover:bg-[#059669] text-white"
+                        }`}
                     >
-                      ✏️
-                    </button>
-                    <button
-                      onClick={() => deleteTodo(todo.id)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f8f9fa] transition-colors"
-                      title="Görevi Sil"
-                    >
-                      ❌
+                      {todo.status === "completed" ? "Tamamlandı" : "Tamamla"}
                     </button>
                   </div>
                 </div>
+              ))}
+            </div>
 
-                <p className="text-[#666] mb-4">{todo.description}</p>
-
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-[#666]">
-                    {new Date(todo.due_date).toLocaleString('tr-TR')}
-                  </p>
-                  <button
-                    onClick={() => completeTodo(todo.id)}
-                    disabled={todo.status === "completed"}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${todo.status === "completed"
-                      ? "bg-[#f8f9fa] text-[#666] cursor-not-allowed"
-                      : "bg-[#10b981] hover:bg-[#059669] text-white"
-                      }`}
-                  >
-                    {todo.status === "completed" ? "Tamamlandı" : "Tamamla"}
-                  </button>
-                </div>
+            {todos.length > itemsPerPage && (
+              <div className="flex justify-center items-center space-x-4 mt-8">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 rounded-xl ${currentPage === 1
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "bg-[#4f46e5] text-white hover:bg-[#4338ca]"
+                    }`}
+                >
+                  Önceki
+                </button>
+                <span className="text-[#666]">
+                  Sayfa {currentPage} / {totalPages}
+                </span>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-xl ${currentPage === totalPages
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "bg-[#4f46e5] text-white hover:bg-[#4338ca]"
+                    }`}
+                >
+                  Sonraki
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>
