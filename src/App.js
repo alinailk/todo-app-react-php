@@ -228,10 +228,21 @@ function App() {
                   className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all"
                 >
                   <div className="flex justify-between items-start mb-4">
-                    <h2 className={`text-xl font-semibold ${todo.status === "completed" ? "line-through text-[#10b981]" : "text-[#1a1a1a]"
-                      }`}>
-                      {todo.title}
-                    </h2>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h2 className={`text-xl font-semibold ${todo.status === "completed" ? "line-through text-[#10b981]" : "text-[#1a1a1a]"}`}>
+                          {todo.title}
+                        </h2>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${todo.priority === 'high'
+                            ? 'bg-red-100 text-red-700'
+                            : todo.priority === 'medium'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-green-100 text-green-700'
+                          }`}>
+                          {todo.priority === 'high' ? 'Yüksek' : todo.priority === 'medium' ? 'Orta' : 'Düşük'}
+                        </span>
+                      </div>
+                    </div>
                     <div className="flex space-x-2">
                       <button
                         onClick={() => editTodo(todo)}
