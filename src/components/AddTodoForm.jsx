@@ -38,28 +38,37 @@ function AddTodoForm({ onAdd }) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4 mb-6">
-            <input
-                type="text"
-                placeholder="Başlık"
-                className="w-full p-2 border rounded"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-            />
-            <textarea
-                placeholder="Açıklama"
-                className="w-full p-2 border rounded"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-            />
-            <input
-                type="date"
-                className="w-full p-2 border rounded"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                required
-            />
+            <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1">Görev Başlığı</label>
+                <input
+                    type="text"
+                    placeholder="Başlık"
+                    className="w-full p-2 border rounded"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                />
+            </div>
+            <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1">Görev Açıklaması</label>
+                <textarea
+                    placeholder="Açıklama"
+                    className="w-full p-2 border rounded"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
+                />
+            </div>
+            <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1">Bitiş Tarihi ve Saati</label>
+                <input
+                    type="datetime-local"
+                    className="w-full p-2 border rounded"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    required
+                />
+            </div>
             <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
                 Görev Ekle
             </button>
