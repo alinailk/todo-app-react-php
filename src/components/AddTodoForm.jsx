@@ -19,6 +19,7 @@ function AddTodoForm({ onAdd }) {
                 body: JSON.stringify(newTodo),
             });
 
+            // Gelen veriyi yakalayıp resulta atar.
             const result = await response.json();
 
             if (result.success) {

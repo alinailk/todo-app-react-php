@@ -10,6 +10,7 @@ const TodoList = () => {
     }, []);
 
     if (todos.length === 0) {
+        // Todo yoksa listeleme işlemi yapılmaz.
         return <p className="text-center text-gray-500">Henüz görev yok!</p>;
     }
 
