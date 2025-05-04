@@ -21,12 +21,12 @@ function App() {
           Görev Listesi
         </h1>
 
-        <AddTodoForm onTodoAdded={fetchTodos} />
+        <AddTodoForm onAdd={fetchTodos} />
 
         {todos.length === 0 ? (
-          <p className="text-center text-gray-500 mt-4">Henüz görev yok</p>
+          <p className="text-center text-gray-500">Henüz görev yok</p>
         ) : (
-          <ul className="space-y-4 mt-4">
+          <ul className="space-y-4">
             {todos.map((todo) => (
               <li key={todo.id} className="border p-4 rounded shadow-sm">
                 <h2 className="text-xl font-semibold">{todo.title}</h2>
