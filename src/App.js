@@ -144,7 +144,7 @@ function App() {
           <div className="flex items-center justify-between mb-8">
             <div className="w-full flex flex-col items-center">
               <h1 className="text-3xl font-bold text-[#1a1a1a] ml-16">
-                ToDo Uygulaması
+                Todo Uygulaması
               </h1>
               <p className="text-[#666] mt-2 ml-16">
                 Toplam {todos.length} görev, Sayfa {currentPage}/{totalPages || 1}
@@ -259,7 +259,7 @@ function App() {
           </div>
         ) : (
           <>
-            <h2 className="text-2xl font-bold text-[#1a1a1a] mb-6 text-center">Kayıtlı Görevler</h2>
+            <h2 className="text-2xl font-bold text-[#1a1a1a] mb-6 text-center">Kayıtlı Görev Listesi</h2>
             <div className="grid gap-6 md:grid-cols-2">
               {currentTodos.map((todo) => (
                 <div
