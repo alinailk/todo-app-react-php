@@ -1,12 +1,30 @@
 import { useEffect, useState } from "react";
 import AddTodoForm from "./components/AddTodoForm";
 import Dashboard from "./components/Dashboard";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
 
-function App() {
+function ThemeToggle() {
+  const { isDarkMode, toggleTheme } = useTheme();
+
+  return (
+    <button
+      onClick={toggleTheme}
+      className={`fixed top-4 right-4 p-2 rounded-full ${isDarkMode
+        ? 'bg-gray-700 text-yellow-300 hover:bg-gray-600'
+        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        }`}
+    >
+      {isDarkMode ? '☀️' : '🌙'}
+    </button>
+  );
+}
+
+function AppContent() {
   const [todos, setTodos] = useState([]);
   const [editingTodo, setEditingTodo] = useState(null); // Düzenleme state'i başlangıçta boş değer tutar.
   const [currentPage, setCurrentPage] = useState(1);
   const [showAddForm, setShowAddForm] = useState(false);
+  const { isDarkMode } = useTheme();
   const itemsPerPage = 10;
 
   const fetchTodos = () => {
@@ -41,7 +59,21 @@ function App() {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          setTodos((prev) => prev.filter((todo) => todo.id !== id));
+          setTodos((prev) => {
+            const newTodos = prev.filter((todo) => todo.id !== id);
+
+            // Eğer mevcut sayfada görev kalmadıysa ve önceki sayfa varsa
+            const remainingItemsOnCurrentPage = newTodos.slice(
+              (currentPage - 1) * itemsPerPage,
+              currentPage * itemsPerPage
+            ).length;
+
+            if (remainingItemsOnCurrentPage === 0 && currentPage > 1) {
+              setCurrentPage(currentPage - 1);
+            }
+
+            return newTodos;
+          });
         } else {
           alert(data.message || "Silme işlemi başarısız oldu.");
         }
@@ -139,38 +171,39 @@ function App() {
   const totalPages = Math.ceil(todos.length / itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5] p-6">
+    <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-[#f0f2f5]'} p-6`}>
+      <ThemeToggle />
       <div className="max-w-5xl mx-auto">
-        <div className="bg-white rounded-3xl shadow-lg p-8 mb-8 border border-gray-100">
+        <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-3xl shadow-lg p-8 mb-8 border ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
           <div className="flex items-center justify-between mb-8">
             <div className="w-full flex flex-col items-center">
-              <h1 className="text-3xl font-bold text-[#1a1a1a] ml-16">
+              <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-[#1a1a1a]'} ml-16`}>
                 Todo Uygulaması
               </h1>
-              <p className="text-[#666] mt-2 ml-16">
+              <p className={`${isDarkMode ? 'text-gray-300' : 'text-[#666]'} mt-2 ml-16`}>
                 Toplam {todos.length} görev, Sayfa {currentPage}/{totalPages || 1}
               </p>
             </div>
-            <div className="w-16 h-16 bg-[#4f46e5] rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+            <div className={`w-16 h-16 ${isDarkMode ? 'bg-blue-700' : 'bg-[#4f46e5]'} rounded-2xl flex items-center justify-center text-white text-2xl font-bold`}>
               {todos.length}
             </div>
           </div>
           <Dashboard todos={todos} />
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="w-full py-3 bg-[#4f46e5] text-white rounded-xl hover:bg-[#4338ca] font-medium transition-colors mb-6"
+            className={`w-full py-3 ${isDarkMode ? 'bg-blue-700 hover:bg-blue-800' : 'bg-[#4f46e5] hover:bg-[#4338ca]'} text-white rounded-xl font-medium transition-colors mb-6`}
           >
-            {showAddForm ? 'Görev Ekleme Formunu Kapat' : 'Yeni Görev Ekle'}
+            {showAddForm ? "Görev Ekleme Formunu Kapat" : "Yeni Görev Ekle"}
           </button>
 
           {showAddForm && (
             <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl border border-gray-100">
+              <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-3xl p-8 w-full max-w-md shadow-2xl border ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-[#1a1a1a]">Yeni Görev Ekle</h2>
+                  <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-[#1a1a1a]'}`}>Yeni Görev Ekle</h2>
                   <button
                     onClick={() => setShowAddForm(false)}
-                    className="text-gray-500 hover:text-gray-700"
+                    className={`${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
                   >
                     ✕
                   </button>
@@ -261,17 +294,17 @@ function App() {
           </div>
         ) : (
           <>
-            <h2 className="text-2xl font-bold text-[#1a1a1a] mb-6 text-center">Kayıtlı Görev Listesi</h2>
+            <h2 className={`text-2xl font-bold mb-6 text-center ${isDarkMode ? 'text-white' : 'text-[#1a1a1a]'}`}>Kayıtlı Görev Listesi</h2>
             <div className="grid gap-6 md:grid-cols-2">
               {currentTodos.map((todo) => (
                 <div
                   key={todo.id}
-                  className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all"
+                  className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-3xl shadow-lg p-6 border hover:shadow-xl transition-all`}
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h2 className={`text-xl font-semibold ${todo.status === "completed" ? "line-through text-[#10b981]" : "text-[#1a1a1a]"}`}>
+                        <h2 className={`text-xl font-semibold ${todo.status === "completed" ? "line-through text-[#10b981]" : isDarkMode ? "text-white" : "text-[#1a1a1a]"}`}>
                           {todo.title}
                         </h2>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${todo.priority === 'high'
@@ -287,14 +320,14 @@ function App() {
                     <div className="flex space-x-2">
                       <button
                         onClick={() => editTodo(todo)}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f8f9fa] transition-colors"
+                        className={`w-8 h-8 flex items-center justify-center rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-[#f8f9fa]'} transition-colors`}
                         title="Görevi Düzenle"
                       >
                         ✏️
                       </button>
                       <button
                         onClick={() => deleteTodo(todo.id)}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f8f9fa] transition-colors"
+                        className={`w-8 h-8 flex items-center justify-center rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-[#f8f9fa]'} transition-colors`}
                         title="Görevi Sil"
                       >
                         ❌
@@ -302,17 +335,20 @@ function App() {
                     </div>
                   </div>
 
-                  <p className="text-[#666] mb-4">{todo.description}</p>
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-[#666]'} mb-4`}>{todo.description}</p>
 
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-[#666]">
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-[#666]'}`}>
+                      <span className="font-medium">Bitiş Tarih/Saat: </span>
                       {new Date(todo.due_date).toLocaleString('tr-TR')}
                     </p>
                     <button
                       onClick={() => completeTodo(todo.id)}
                       disabled={todo.status === "completed"}
                       className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${todo.status === "completed"
-                        ? "bg-[#f8f9fa] text-[#666] cursor-not-allowed"
+                        ? isDarkMode
+                          ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                          : "bg-[#f8f9fa] text-[#666] cursor-not-allowed"
                         : "bg-[#10b981] hover:bg-[#059669] text-white"
                         }`}
                     >
@@ -354,6 +390,14 @@ function App() {
         )}
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }
 
