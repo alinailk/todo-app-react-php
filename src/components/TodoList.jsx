@@ -13,7 +13,6 @@ const TodoList = () => {
         // Todo yoksa listeleme işlemi yapılmaz.
         return <p className="text-center text-gray-500">Henüz görev yok!</p>;
     }
-
     return (
         <ul className="space-y-4">
             {todos.map((todo) => (

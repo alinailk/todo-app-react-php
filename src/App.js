@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AddTodoForm from "./components/AddTodoForm";
+import Dashboard from "./components/Dashboard";
 
 function App() {
   const [todos, setTodos] = useState([]);
@@ -154,7 +155,7 @@ function App() {
               {todos.length}
             </div>
           </div>
-
+          <Dashboard todos={todos} />
           <button
             onClick={() => setShowAddForm(!showAddForm)}
             className="w-full py-3 bg-[#4f46e5] text-white rounded-xl hover:bg-[#4338ca] font-medium transition-colors mb-6"
@@ -174,6 +175,7 @@ function App() {
                     ✕
                   </button>
                 </div>
+
                 <AddTodoForm onAdd={() => {
                   handleAddTodo();
                   setShowAddForm(false);
