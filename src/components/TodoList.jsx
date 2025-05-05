@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import TodoItem from "./TodoItem";
 
 const TodoList = () => {
     const [todos, setTodos] = useState([]);
@@ -16,11 +17,7 @@ const TodoList = () => {
     return (
         <ul className="space-y-4">
             {todos.map((todo) => (
-                <li key={todo.id} className="border p-4 rounded shadow-sm">
-                    <h2 className="text-xl font-semibold">{todo.title}</h2>
-                    <p className="text-gray-700">{todo.description}</p>
-                    <p className="text-sm text-gray-500">Bitiş: {todo.due_date}</p>
-                </li>
+                <TodoItem key={todo.id} todo={todo} />
             ))}
         </ul>
     );

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AddTodoForm from "./components/AddTodoForm";
 import Dashboard from "./components/Dashboard";
+import Header from "./components/Header";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 
 function ThemeToggle() {
@@ -85,26 +86,42 @@ function AppContent() {
   };
 
   // Todoları tamamlandı işaretleme işlemi için.
-  const completeTodo = (id) => {
-    fetch(`http://localhost/todo-api/api/todos/updateStatus.php`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id, status: "completed" }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          fetchTodos();
-        } else {
-          alert(data.message || "Tamamla işlemi başarısız oldu.");
-        }
-      })
-      .catch((err) => {
-        console.error("Tamamla hatası:", err);
-        alert("Bir hata oluştu.");
+  const completeTodo = async (id) => {
+    try {
+      const response = await fetch(`http://localhost/todo-api/api/todos/updateStatus.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, status: "completed" }),
       });
+
+      // Önce response'un ok olup olmadığını kontrol et
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Response'un JSON olup olmadığını kontrol et
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new TypeError("API yanıtı JSON formatında değil!");
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setTodos((prevTodos) =>
+          prevTodos.map((todo) =>
+            todo.id === id ? { ...todo, status: "completed" } : todo
+          )
+        );
+      } else {
+        alert(data.message || "Tamamla işlemi başarısız oldu.");
+      }
+    } catch (err) {
+      console.error("Tamamla hatası:", err);
+      alert("Görev tamamlama işlemi sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
+    }
   };
 
   const editTodo = (todo) => {
@@ -175,19 +192,11 @@ function AppContent() {
       <ThemeToggle />
       <div className="max-w-5xl mx-auto">
         <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-3xl shadow-lg p-8 mb-8 border ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
-          <div className="flex items-center justify-between mb-8">
-            <div className="w-full flex flex-col items-center">
-              <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-[#1a1a1a]'} ml-16`}>
-                Todo Uygulaması
-              </h1>
-              <p className={`${isDarkMode ? 'text-gray-300' : 'text-[#666]'} mt-2 ml-16`}>
-                Toplam {todos.length} görev, Sayfa {currentPage}/{totalPages || 1}
-              </p>
-            </div>
-            <div className={`w-16 h-16 ${isDarkMode ? 'bg-blue-700' : 'bg-[#4f46e5]'} rounded-2xl flex items-center justify-center text-white text-2xl font-bold`}>
-              {todos.length}
-            </div>
-          </div>
+          <Header
+            totalTodos={todos.length}
+            currentPage={currentPage}
+            totalPages={totalPages}
+          />
           <Dashboard todos={todos} />
           <button
             onClick={() => setShowAddForm(!showAddForm)}

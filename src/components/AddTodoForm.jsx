@@ -22,19 +22,27 @@ function AddTodoForm({ onAdd }) {
                 body: JSON.stringify(newTodo),
             });
 
-            // Gelen veriyi yakalayıp resulta atar.
             const result = await response.json();
+            console.log("Kayıt sonucu:", result); // Debug için log
 
             if (result.success) {
-                onAdd(); // Yeni verileri al
+                // Form alanlarını temizle
                 setTitle("");
                 setDescription("");
                 setDueDate("");
                 setPriority("medium");
+
+                // Yeni görevi ekle ve formu kapat
+                if (result.data) {
+                    onAdd(result.data);
+                } else {
+                    onAdd();
+                }
             } else {
-                alert("Görev eklenemedi.");
+                alert(result.message || "Görev eklenemedi.");
             }
         } catch (error) {
+            console.error("Hata detayı:", error);
             alert("Sunucuya ulaşılamadı.");
             console.error("Hata:", error);
         }
