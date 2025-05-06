@@ -2,27 +2,15 @@ import { useEffect, useState } from "react";
 import AddTodoForm from "./components/AddTodoForm";
 import Dashboard from "./components/Dashboard";
 import Header from "./components/Header";
+import ThemeToggle from "./components/ThemeToggle";
+import EditTodoModal from "./components/EditTodoModal";
+import TodoList from "./components/TodoList";
+import Pagination from "./components/Pagination";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
-
-function ThemeToggle() {
-  const { isDarkMode, toggleTheme } = useTheme();
-
-  return (
-    <button
-      onClick={toggleTheme}
-      className={`fixed top-4 right-4 p-2 rounded-full ${isDarkMode
-        ? 'bg-gray-700 text-yellow-300 hover:bg-gray-600'
-        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-        }`}
-    >
-      {isDarkMode ? '☀️' : '🌙'}
-    </button>
-  );
-}
 
 function AppContent() {
   const [todos, setTodos] = useState([]);
-  const [editingTodo, setEditingTodo] = useState(null); // Düzenleme state'i başlangıçta boş değer tutar.
+  const [editingTodo, setEditingTodo] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [showAddForm, setShowAddForm] = useState(false);
   const { isDarkMode } = useTheme();
@@ -46,7 +34,6 @@ function AppContent() {
       });
   };
 
-  // Todo silme işlemi.
   const deleteTodo = (id) => {
     if (!window.confirm("Bu görevi silmek istediğinizden emin misiniz?")) return;
 
@@ -62,8 +49,6 @@ function AppContent() {
         if (data.success) {
           setTodos((prev) => {
             const newTodos = prev.filter((todo) => todo.id !== id);
-
-            // Eğer mevcut sayfada görev kalmadıysa ve önceki sayfa varsa
             const remainingItemsOnCurrentPage = newTodos.slice(
               (currentPage - 1) * itemsPerPage,
               currentPage * itemsPerPage
@@ -85,7 +70,6 @@ function AppContent() {
       });
   };
 
-  // Todoları tamamlandı işaretleme işlemi için.
   const completeTodo = async (id) => {
     try {
       const response = await fetch(`http://localhost/todo-api/api/todos/updateStatus.php`, {
@@ -96,12 +80,10 @@ function AppContent() {
         body: JSON.stringify({ id, status: "completed" }),
       });
 
-      // Önce response'un ok olup olmadığını kontrol et
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Response'un JSON olup olmadığını kontrol et
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         throw new TypeError("API yanıtı JSON formatında değil!");
@@ -124,36 +106,17 @@ function AppContent() {
     }
   };
 
-  const editTodo = (todo) => {
-    setEditingTodo(todo);
-  };
-
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-
-    const updateData = {
-      id: editingTodo.id,
-      title: editingTodo.title,
-      description: editingTodo.description,
-      due_date: editingTodo.due_date,
-      priority: editingTodo.priority || 'medium',
-      status: editingTodo.status || 'pending'
-    };
-
-    console.log("Gönderilen veri:", updateData);
-
+  const handleEditSubmit = async (editedTodo) => {
     try {
       const response = await fetch("http://localhost/todo-api/api/todos/update.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updateData),
+        body: JSON.stringify(editedTodo),
       });
 
-      console.log("API Response:", response);
       const data = await response.json();
-      console.log("API Data:", data);
 
       if (data.success) {
         fetchTodos();
@@ -167,7 +130,6 @@ function AppContent() {
     }
   };
 
-  // AddTodoForm için onAdd fonksiyonunu güncelle
   const handleAddTodo = () => {
     fetchTodos();
     setCurrentPage(1);
@@ -181,7 +143,6 @@ function AppContent() {
     setCurrentPage(newPage);
   };
 
-  // Sayfalama için görevleri böl
   const indexOfLastTodo = currentPage * itemsPerPage;
   const indexOfFirstTodo = indexOfLastTodo - itemsPerPage;
   const currentTodos = todos.slice(indexOfFirstTodo, indexOfLastTodo);
@@ -225,177 +186,29 @@ function AppContent() {
               </div>
             </div>
           )}
+
+          <TodoList
+            todos={todos}
+            currentTodos={currentTodos}
+            onDelete={deleteTodo}
+            onEdit={setEditingTodo}
+            onComplete={completeTodo}
+            isDarkMode={isDarkMode}
+          />
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
 
         {editingTodo && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl border border-gray-100">
-              <h2 className="text-2xl font-bold mb-6 text-[#1a1a1a]">Görevi Düzenle</h2>
-              <form onSubmit={handleEditSubmit} className="space-y-4">
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-[#666] mb-1">Görev Başlığı</label>
-                  <input
-                    type="text"
-                    className="w-full p-3 bg-[#f8f9fa] border-0 rounded-xl focus:ring-2 focus:ring-[#4f46e5]"
-                    value={editingTodo.title}
-                    onChange={(e) => setEditingTodo({ ...editingTodo, title: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-[#666] mb-1">Görev Açıklaması</label>
-                  <textarea
-                    className="w-full p-3 bg-[#f8f9fa] border-0 rounded-xl focus:ring-2 focus:ring-[#4f46e5]"
-                    value={editingTodo.description}
-                    onChange={(e) => setEditingTodo({ ...editingTodo, description: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-[#666] mb-1">Bitiş Tarihi ve Saati</label>
-                  <input
-                    type="datetime-local"
-                    className="w-full p-3 bg-[#f8f9fa] border-0 rounded-xl focus:ring-2 focus:ring-[#4f46e5]"
-                    value={editingTodo.due_date}
-                    onChange={(e) => setEditingTodo({ ...editingTodo, due_date: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-[#666] mb-1">Öncelik</label>
-                  <select
-                    className="w-full p-3 bg-[#f8f9fa] border-0 rounded-xl focus:ring-2 focus:ring-[#4f46e5]"
-                    value={editingTodo.priority || 'medium'}
-                    onChange={(e) => setEditingTodo({ ...editingTodo, priority: e.target.value })}
-                  >
-                    <option value="low">Düşük</option>
-                    <option value="medium">Orta</option>
-                    <option value="high">Yüksek</option>
-                  </select>
-                </div>
-                <div className="flex justify-end space-x-3 mt-6">
-                  <button
-                    type="button"
-                    onClick={() => setEditingTodo(null)}
-                    className="px-6 py-2.5 text-[#666] hover:text-[#1a1a1a] font-medium"
-                  >
-                    İptal
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 bg-[#4f46e5] text-white rounded-xl hover:bg-[#4338ca] font-medium transition-colors"
-                  >
-                    Kaydet
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {todos.length === 0 ? (
-          <div className="bg-white rounded-3xl shadow-lg p-12 text-center border border-gray-100">
-            <div className="w-20 h-20 bg-[#f8f9fa] rounded-2xl mx-auto mb-6 flex items-center justify-center">
-              <span className="text-3xl">📝</span>
-            </div>
-            <p className="text-[#1a1a1a] text-lg font-medium">Henüz görev yok</p>
-            <p className="text-[#666] mt-2">Yeni bir görev ekleyerek başlayın</p>
-          </div>
-        ) : (
-          <>
-            <h2 className={`text-2xl font-bold mb-6 text-center ${isDarkMode ? 'text-white' : 'text-[#1a1a1a]'}`}>Kayıtlı Görev Listesi</h2>
-            <div className="grid gap-6 md:grid-cols-2">
-              {currentTodos.map((todo) => (
-                <div
-                  key={todo.id}
-                  className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-3xl shadow-lg p-6 border hover:shadow-xl transition-all`}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h2 className={`text-xl font-semibold ${todo.status === "completed" ? "line-through text-[#10b981]" : isDarkMode ? "text-white" : "text-[#1a1a1a]"}`}>
-                          {todo.title}
-                        </h2>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${todo.priority === 'high'
-                          ? 'bg-red-100 text-red-700'
-                          : todo.priority === 'medium'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-green-100 text-green-700'
-                          }`}>
-                          {todo.priority === 'high' ? 'Yüksek' : todo.priority === 'medium' ? 'Orta' : 'Düşük'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => editTodo(todo)}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-[#f8f9fa]'} transition-colors`}
-                        title="Görevi Düzenle"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={() => deleteTodo(todo.id)}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-[#f8f9fa]'} transition-colors`}
-                        title="Görevi Sil"
-                      >
-                        ❌
-                      </button>
-                    </div>
-                  </div>
-
-                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-[#666]'} mb-4`}>{todo.description}</p>
-
-                  <div className="flex items-center justify-between">
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-[#666]'}`}>
-                      <span className="font-medium">Bitiş Tarih/Saat: </span>
-                      {new Date(todo.due_date).toLocaleString('tr-TR')}
-                    </p>
-                    <button
-                      onClick={() => completeTodo(todo.id)}
-                      disabled={todo.status === "completed"}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${todo.status === "completed"
-                        ? isDarkMode
-                          ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                          : "bg-[#f8f9fa] text-[#666] cursor-not-allowed"
-                        : "bg-[#10b981] hover:bg-[#059669] text-white"
-                        }`}
-                    >
-                      {todo.status === "completed" ? "Tamamlandı" : "Tamamla"}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {todos.length > itemsPerPage && (
-              <div className="flex justify-center items-center space-x-4 mt-8">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded-xl ${currentPage === 1
-                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "bg-[#4f46e5] text-white hover:bg-[#4338ca]"
-                    }`}
-                >
-                  Önceki
-                </button>
-                <span className="text-[#666]">
-                  Sayfa {currentPage} / {totalPages}
-                </span>
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-xl ${currentPage === totalPages
-                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "bg-[#4f46e5] text-white hover:bg-[#4338ca]"
-                    }`}
-                >
-                  Sonraki
-                </button>
-              </div>
-            )}
-          </>
+          <EditTodoModal
+            todo={editingTodo}
+            onClose={() => setEditingTodo(null)}
+            onSubmit={handleEditSubmit}
+          />
         )}
       </div>
     </div>
