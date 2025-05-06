@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
+// Açık-koyu tema için ThmeContext'i oluşturdum.
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
@@ -19,10 +20,11 @@ export function ThemeProvider({ children }) {
     }, [isDarkMode]);
 
     const toggleTheme = () => {
-        setIsDarkMode(!isDarkMode);
+        setIsDarkMode(!isDarkMode); // Tema modunu değiştirme.
     };
 
     return (
+        // Bu yapı ile tema kontrolü diğer componentlerden sağlanabilir.
         <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
             {children}
         </ThemeContext.Provider>
