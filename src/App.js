@@ -6,6 +6,7 @@ import EditTodoModal from "./components/EditTodoModal";
 import TodoList from "./components/TodoList";
 import Pagination from "./components/Pagination";
 import AddTodoModal from "./components/AddTodoModal";
+import FilterBar from "./components/FilterBar";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 
 function AppContent() {
@@ -13,6 +14,7 @@ function AppContent() {
   const [editingTodo, setEditingTodo] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [filterType, setFilterType] = useState('all');
   const { isDarkMode } = useTheme();
   const itemsPerPage = 10;
 
@@ -143,11 +145,30 @@ function AppContent() {
     setCurrentPage(newPage);
   };
 
+  // Filtreleme işlemi
+  const filteredTodos = todos.filter(todo => {
+    switch (filterType) {
+      case 'completed':
+        return todo.status === 'completed';
+      case 'pending':
+        return todo.status !== 'completed';
+      case 'priority':
+        return todo.priority === 'high';
+      default:
+        return true;
+    }
+  });
+
   // Sayfalama işlemi hesaplaması.
   const indexOfLastTodo = currentPage * itemsPerPage;
   const indexOfFirstTodo = indexOfLastTodo - itemsPerPage;
-  const currentTodos = todos.slice(indexOfFirstTodo, indexOfLastTodo);
-  const totalPages = Math.ceil(todos.length / itemsPerPage);
+  const currentTodos = filteredTodos.slice(indexOfFirstTodo, indexOfLastTodo);
+  const totalPages = Math.ceil(filteredTodos.length / itemsPerPage);
+
+  const handleFilterChange = (newFilterType) => {
+    setFilterType(newFilterType);
+    setCurrentPage(1); // Filtre değiştiğinde ilk sayfaya dön
+  };
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-[#f0f2f5]'} p-6`}>
@@ -175,12 +196,14 @@ function AppContent() {
           />
 
           <TodoList
-            todos={todos}
+            todos={filteredTodos}
             currentTodos={currentTodos}
             onDelete={deleteTodo}
             onEdit={setEditingTodo}
             onComplete={completeTodo}
             isDarkMode={isDarkMode}
+            filterType={filterType}
+            onFilterChange={handleFilterChange}
           />
 
           <Pagination
