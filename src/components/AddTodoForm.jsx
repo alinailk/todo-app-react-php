@@ -23,14 +23,14 @@ function AddTodoForm({ onAdd }) {
             });
 
             const result = await response.json();
-            console.log("Kayıt sonucu:", result); // Debug için log
+            // console.log("Kayıt sonucu:", result); // Debug için log
 
             if (result.success) {
                 // Form alanlarını temizle
                 setTitle("");
                 setDescription("");
                 setDueDate("");
-                setPriority("medium");
+                setPriority("medium"); // Görev önceliği varsayılan olarak medium olur.
 
                 // Yeni görevi ekle ve formu kapat
                 if (result.data) {

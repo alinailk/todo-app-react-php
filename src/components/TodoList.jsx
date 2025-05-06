@@ -1,7 +1,8 @@
 import TodoItem from "./TodoItem";
-//import { useTheme } from "../context/ThemeContext";
 
 const TodoList = ({ todos, currentTodos, onDelete, onEdit, onComplete, isDarkMode }) => {
+
+    // Görev listesinin boş olup olmadığının kontrolü.
     if (todos.length === 0) {
         return (
             <div className="bg-white rounded-3xl shadow-lg p-12 text-center border border-gray-100">

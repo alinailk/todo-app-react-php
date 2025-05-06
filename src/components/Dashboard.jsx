@@ -1,10 +1,17 @@
 import React from "react";
 
 export default function Dashboard({ todos }) {
+
+    // todos düzgün bir dizi değilse, sayfada Veri yükleniyor... yazısı gösterilir.
     if (!Array.isArray(todos)) return <div>Veri yükleniyor...</div>;
 
+    // Tamamlanan görev sayısı.
     const completedCount = todos.filter((todo) => todo.status === "completed").length;
+
+    // Bekleyen görev sayısı.
     const pendingCount = todos.filter((todo) => todo.status === "pending").length;
+
+    // Yüksek öncelikli görev sayısı.
     const highPriorityCount = todos.filter((todo) => todo.priority === "high").length;
 
     return (

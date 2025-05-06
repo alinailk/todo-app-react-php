@@ -1,6 +1,8 @@
 import React from 'react';
 
 const PriorityIndicator = ({ priority }) => {
+
+    // Bu fonksiyon gelen priority değerine göre üç farklı öncelik türünden birine karar verir.
     const getPriorityConfig = (priority) => {
         switch (priority) {
             case 'high':
@@ -27,6 +29,7 @@ const PriorityIndicator = ({ priority }) => {
         }
     };
 
+    // Priority değerine bağlı olarak ilgili metin, arka plan rengi, yazı rengi ve ikonu alır.
     const { text, bgColor, textColor, icon } = getPriorityConfig(priority);
 
     return (

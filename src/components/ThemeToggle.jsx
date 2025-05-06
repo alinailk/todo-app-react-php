@@ -1,6 +1,8 @@
 import { useTheme } from "../context/ThemeContext";
 
 function ThemeToggle() {
+
+    // Tema bilgisini ve fonksiyonları doğrudan almak için useTheme() kullandım.
     const { isDarkMode, toggleTheme } = useTheme();
 
     return (

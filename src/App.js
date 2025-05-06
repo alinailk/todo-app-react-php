@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import AddTodoForm from "./components/AddTodoForm";
 import Dashboard from "./components/Dashboard";
 import Header from "./components/Header";
 import ThemeToggle from "./components/ThemeToggle";
 import EditTodoModal from "./components/EditTodoModal";
 import TodoList from "./components/TodoList";
 import Pagination from "./components/Pagination";
+import AddTodoModal from "./components/AddTodoModal";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 
 function AppContent() {
@@ -143,6 +143,7 @@ function AppContent() {
     setCurrentPage(newPage);
   };
 
+  // Sayfalama işlemi hesaplaması.
   const indexOfLastTodo = currentPage * itemsPerPage;
   const indexOfFirstTodo = indexOfLastTodo - itemsPerPage;
   const currentTodos = todos.slice(indexOfFirstTodo, indexOfLastTodo);
@@ -166,26 +167,12 @@ function AppContent() {
             {showAddForm ? "Görev Ekleme Formunu Kapat" : "Yeni Görev Ekle"}
           </button>
 
-          {showAddForm && (
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-              <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-3xl p-8 w-full max-w-md shadow-2xl border ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-[#1a1a1a]'}`}>Yeni Görev Ekle</h2>
-                  <button
-                    onClick={() => setShowAddForm(false)}
-                    className={`${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                <AddTodoForm onAdd={() => {
-                  handleAddTodo();
-                  setShowAddForm(false);
-                }} />
-              </div>
-            </div>
-          )}
+          <AddTodoModal
+            isOpen={showAddForm}
+            onClose={() => setShowAddForm(false)}
+            onAdd={handleAddTodo}
+            isDarkMode={isDarkMode}
+          />
 
           <TodoList
             todos={todos}

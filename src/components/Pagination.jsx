@@ -1,4 +1,6 @@
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+
+    // Toplam sayfa sayısı 1'den küçükse sayfalama bileşeni görünmez.
     if (totalPages <= 1) return null;
 
     return (
