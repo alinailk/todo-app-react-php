@@ -1,29 +1,118 @@
-import AddTodoForm from "./AddTodoForm";
+import { useState } from 'react';
 
-const AddTodoModal = ({ isOpen, onClose, onAdd, isDarkMode }) => {
+function AddTodoModal({ isOpen, onClose, onAdd, isDarkMode }) {
+    const [newTodo, setNewTodo] = useState({
+        title: '',
+        description: '',
+        due_date: '',
+        priority: 'medium'
+    });
 
-    if (!isOpen) return null; // Modal açık-kapalı kontrolü.
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onAdd(newTodo);
+        setNewTodo({
+            title: '',
+            description: '',
+            due_date: '',
+            priority: 'medium'
+        });
+        onClose();
+    };
+
+    if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-3xl p-8 w-full max-w-md shadow-2xl border ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-[#1a1a1a]'}`}>Yeni Görev Ekle</h2>
-                    <button
-                        onClick={onClose}
-                        className={`${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
-                    >
-                        ✕
-                    </button>
-                </div>
-
-                <AddTodoForm onAdd={() => {
-                    onAdd(); // Kullanıcı görev ekleye tıklayınca app.js görev listesini günceller.
-                    onClose(); // Modal kapat.
-                }} />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50
+            transition-opacity duration-300 ease-in-out
+            animate-fadeIn">
+            <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} 
+                rounded-3xl p-8 w-full max-w-md shadow-2xl border
+                transition-all duration-300 ease-in-out
+                transform scale-100
+                animate-modalIn`}>
+                <h2 className={`text-2xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-[#1a1a1a]'} 
+                    transition-colors duration-300`}>Yeni Görev Ekle</h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="flex flex-col animate-fadeIn" style={{ animationDelay: '100ms' }}>
+                        <label className={`text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-[#666]'} 
+                            transition-colors duration-300`}>Görev Başlığı</label>
+                        <input
+                            type="text"
+                            className={`w-full p-3 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-[#f8f9fa] text-[#1a1a1a]'} 
+                                border-0 rounded-xl focus:ring-2 focus:ring-[#4f46e5]
+                                transition-all duration-300 ease-in-out
+                                transform hover:scale-[1.02]`}
+                            value={newTodo.title}
+                            onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <div className="flex flex-col animate-fadeIn" style={{ animationDelay: '200ms' }}>
+                        <label className={`text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-[#666]'} 
+                            transition-colors duration-300`}>Görev Açıklaması</label>
+                        <textarea
+                            className={`w-full p-3 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-[#f8f9fa] text-[#1a1a1a]'} 
+                                border-0 rounded-xl focus:ring-2 focus:ring-[#4f46e5]
+                                transition-all duration-300 ease-in-out
+                                transform hover:scale-[1.02]`}
+                            value={newTodo.description}
+                            onChange={(e) => setNewTodo({ ...newTodo, description: e.target.value })}
+                            rows="4"
+                        />
+                    </div>
+                    <div className="flex flex-col animate-fadeIn" style={{ animationDelay: '300ms' }}>
+                        <label className={`text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-[#666]'} 
+                            transition-colors duration-300`}>Bitiş Tarihi ve Saati</label>
+                        <input
+                            type="datetime-local"
+                            className={`w-full p-3 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-[#f8f9fa] text-[#1a1a1a]'} 
+                                border-0 rounded-xl focus:ring-2 focus:ring-[#4f46e5]
+                                transition-all duration-300 ease-in-out
+                                transform hover:scale-[1.02]`}
+                            value={newTodo.due_date}
+                            onChange={(e) => setNewTodo({ ...newTodo, due_date: e.target.value })}
+                        />
+                    </div>
+                    <div className="flex flex-col animate-fadeIn" style={{ animationDelay: '400ms' }}>
+                        <label className={`text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-[#666]'} 
+                            transition-colors duration-300`}>Öncelik</label>
+                        <select
+                            className={`w-full p-3 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-[#f8f9fa] text-[#1a1a1a]'} 
+                                border-0 rounded-xl focus:ring-2 focus:ring-[#4f46e5]
+                                transition-all duration-300 ease-in-out
+                                transform hover:scale-[1.02]`}
+                            value={newTodo.priority}
+                            onChange={(e) => setNewTodo({ ...newTodo, priority: e.target.value })}
+                        >
+                            <option value="low">Düşük</option>
+                            <option value="medium">Orta</option>
+                            <option value="high">Yüksek</option>
+                        </select>
+                    </div>
+                    <div className="flex justify-end space-x-4 mt-6 animate-fadeIn" style={{ animationDelay: '500ms' }}>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className={`px-4 py-2 ${isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-800'} 
+                                transition-all duration-300 ease-in-out
+                                transform hover:scale-105`}
+                        >
+                            İptal
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-4 py-2 bg-[#4f46e5] text-white rounded-xl 
+                                hover:bg-[#4338ca] transition-all duration-300 ease-in-out
+                                transform hover:scale-105"
+                        >
+                            Ekle
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );
-};
+}
 
 export default AddTodoModal; 

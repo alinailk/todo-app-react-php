@@ -155,9 +155,28 @@ function AppContent() {
     }
   };
 
-  const handleAddTodo = () => {
-    fetchTodos();
-    setCurrentPage(1);
+  const handleAddTodo = async (newTodo) => {
+    try {
+      const response = await fetch("http://localhost/todo-api/api/todos/create.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newTodo),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        fetchTodos();
+        setShowAddForm(false);
+      } else {
+        alert(result.message || "Görev eklenemedi.");
+      }
+    } catch (error) {
+      console.error("Hata detayı:", error);
+      alert("Sunucuya ulaşılamadı.");
+    }
   };
 
   useEffect(() => {
