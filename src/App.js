@@ -241,6 +241,7 @@ function AppContent() {
             todo={editingTodo}
             onClose={() => setEditingTodo(null)}
             onSubmit={handleEditSubmit}
+            isDarkMode={isDarkMode}
           />
         )}
 
