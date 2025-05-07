@@ -49,14 +49,14 @@ function EditTodoModal({ todo, onClose, onSubmit, isDarkMode }) {
                     </div>
                     <div className="flex flex-col animate-fadeIn" style={{ animationDelay: '300ms' }}>
                         <label className={`text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-[#666]'} 
-                            transition-colors duration-300`}>Bitiş Tarihi</label>
+                            transition-colors duration-300`}>Bitiş Tarihi ve Saati</label>
                         <input
-                            type="date"
+                            type="datetime-local"
                             className={`w-full p-3 ${isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-[#f8f9fa] text-[#1a1a1a]'} 
                                 border-0 rounded-xl focus:ring-2 focus:ring-[#4f46e5]
                                 transition-all duration-300 ease-in-out
                                 transform hover:scale-[1.02]`}
-                            value={editedTodo.due_date}
+                            value={editedTodo.due_date ? editedTodo.due_date.slice(0, 16) : ''}
                             onChange={(e) => setEditedTodo({ ...editedTodo, due_date: e.target.value })}
                         />
                     </div>
