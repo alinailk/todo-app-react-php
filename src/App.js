@@ -6,8 +6,10 @@ import EditTodoModal from "./components/EditTodoModal";
 import TodoList from "./components/TodoList";
 import Pagination from "./components/Pagination";
 import AddTodoModal from "./components/AddTodoModal";
-import FilterBar from "./components/FilterBar";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
+import DeleteConfirmationModal from './components/DeleteConfirmationModal';
+// import FilterBar from "./components/FilterBar";
+
 
 function AppContent() {
   const [todos, setTodos] = useState([]);
@@ -16,8 +18,11 @@ function AppContent() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [filterType, setFilterType] = useState('all');
   const { isDarkMode } = useTheme();
-  const itemsPerPage = 10;
+  const itemsPerPage = 10; // Sayfa başı 10 adet görev listelenir.
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [todoToDelete, setTodoToDelete] = useState(null);
 
+  // get.php api dosyasına istek atar.
   const fetchTodos = () => {
     fetch("http://localhost/todo-api/api/todos/get.php")
       .then((res) => res.json())
@@ -31,26 +36,33 @@ function AppContent() {
         }
       })
       .catch((error) => {
-        console.error("Error fetching todos:", error);
+        console.error("Görevler alınamadı:", error);
         setTodos([]);
       });
   };
 
+  // To do silme onay işlemi.
   const deleteTodo = (id) => {
-    if (!window.confirm("Bu görevi silmek istediğinizden emin misiniz?")) return;
+    setTodoToDelete(id);
+    setDeleteModalOpen(true);
+  };
 
+  const handleDeleteConfirm = () => {
+    if (!todoToDelete) return;
+
+    // delete.php api dosyasına istek atar.
     fetch(`http://localhost/todo-api/api/todos/delete.php`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ id: todoToDelete }),
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
           setTodos((prev) => {
-            const newTodos = prev.filter((todo) => todo.id !== id);
+            const newTodos = prev.filter((todo) => todo.id !== todoToDelete);
             const remainingItemsOnCurrentPage = newTodos.slice(
               (currentPage - 1) * itemsPerPage,
               currentPage * itemsPerPage
@@ -69,9 +81,19 @@ function AppContent() {
       .catch((err) => {
         console.error("Silme hatası:", err);
         alert("Bir hata oluştu.");
+      })
+      .finally(() => {
+        setDeleteModalOpen(false);
+        setTodoToDelete(null);
       });
   };
 
+  const handleDeleteCancel = () => {
+    setDeleteModalOpen(false);
+    setTodoToDelete(null);
+  };
+
+  // .php api dosyasına istek atar.
   const completeTodo = async (id) => {
     try {
       const response = await fetch(`http://localhost/todo-api/api/todos/updateStatus.php`, {
@@ -108,6 +130,7 @@ function AppContent() {
     }
   };
 
+  // update.php api dosyasına istek atar.
   const handleEditSubmit = async (editedTodo) => {
     try {
       const response = await fetch("http://localhost/todo-api/api/todos/update.php", {
@@ -220,6 +243,13 @@ function AppContent() {
             onSubmit={handleEditSubmit}
           />
         )}
+
+        <DeleteConfirmationModal
+          isOpen={deleteModalOpen}
+          onClose={handleDeleteCancel}
+          onConfirm={handleDeleteConfirm}
+          isDarkMode={isDarkMode}
+        />
       </div>
     </div>
   );
