@@ -1,70 +1,73 @@
-# Getting Started with Create React App
+🛠️ React + PHP Todo Uygulaması
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Bu repo, PHP ile geliştirilmiş bir API'ye bağlanan React Todo uygulamasını içerir.
 
-## Available Scripts
+⚛️ Kullanılan Teknolojiler
 
-In the project directory, you can run:
+• React (Hooks ile)
+• Tailwind CSS
+• Axios (API bağlantısı için)
+• PHP API (ayrı repoda)
 
-### `npm start`
+🚀 Özellikler
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+• Görev ekleme
+• Görev silme (soft delete)
+• Görev tamamlandı/aktif yapma
+• Öncelik ve tarih gösterimi
+• MySQL üzerinden canlı veri yönetimi
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+📁 Proje Yapısı
 
-### `npm test`
+📁 todo-react/  
+    📁 src/  
+        📁 components/ → Uygulamanın görsel parçaları ve sayfa bileşenleri  
+            📄 AddTodoForm.jsx → Yeni todo ekleme formu  
+            📄 AddTodoModal.jsx → Todo ekleme popup/modal bileşeni  
+            📄 Dashboard.jsx → İstatistik gösterimi  
+            📄 DeleteConfirmationModal.jsx → Görev silme onay modal'ı  
+            📄 EditTodoModal.jsx → Todo düzenleme popup bileşeni  
+            📄 EmptyState.jsx → Liste boş olduğunda gösterilen bileşen  
+            📄 FilterBar.jsx → Görev filtreleme bileşeni  
+            📄 Header.jsx → Üst kısım  
+            📄 Pagination.jsx → Sayfalama kontrolü  
+            📄 PriorityIndicator.jsx → Todo önceliğini renk/simge ile gösterir  
+            📄 StatusBadge.jsx → Todo durumuna göre rozet  
+            📄 ThemeToggle.jsx → Açık/Koyu tema geçişi  
+            📄 TodoItem.jsx → Tek bir todo kartı  
+            📄 TodoList.jsx → Todo’ların listelendiği ana liste bileşeni  
+        📁 components/Context/  
+            📄 ThemeContext.jsx → Tema bilgisini global sağlayan Context  
+        📄 App.js → Ana uygulama bileşeni, routing ve layout genelde burada  
+        📄 App.css, index.css → Global stiller
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+🔗 API Entegrasyonu
 
-### `npm run build`
+API istekleri şu base URL'e yapılır:
+"http://localhost/todo-api/api/todos/"
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Kullanılan uç noktalar:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+• "get.php" – Görevleri listeler
+• "create.php" – Görev oluşturur
+• "update.php" – Görevi günceller
+• "delete.php" – Görevi siler
+• "updateStatus.php" – Görev durumunu günceller
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+⚙️ Kurulum
 
-### `npm run eject`
+🛠️ Bu repoyu klonlayın:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+git clone https://github.com/alinailk/todo-app-react-php
+cd todo-react
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+🔧 Bağımlılıkları yükleyin:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+yarn install veya npm install
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+🚀 Uygulamayı başlatın:
 
-## Learn More
+yarn dev veya npm run dev
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+⚠️ Not: API'yi kullanabilmek için PHP dosyalarını ve veritabanı bağlantısını düzgün şekilde yapılandırarak todo-api klasörünü çalıştırmanız gerekmektedir. API, PHP backend üzerinden şu adreste kullanılabilir:
+"http://localhost/todo-api/api/todos/..."
